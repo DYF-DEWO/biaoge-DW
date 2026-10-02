@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from io import BytesIO
+from io import StringIO
 
 # ========== 页面基础设置 ==========
 st.set_page_config(
@@ -29,7 +29,7 @@ with col1:
 with col2:
     btn_sort = st.button("整理表")
 with col3:
-    btn_export = st.button("导出Excel")
+    btn_export = st.button("导出表格")
 
 # ========== 业务逻辑 ==========
 show_df = df.copy()
@@ -45,17 +45,17 @@ if btn_sort:
     st.success("表格已整理排序")
 
 if btn_export:
-    output = BytesIO()
-    with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        show_df.to_excel(writer, index=False, sheet_name="播种机机型")
-    excel_data = output.getvalue()
+    # 导出CSV，中文不乱码，Excel直接打开
+    output = StringIO()
+    show_df.to_csv(output, index=False, encoding="utf-8-sig")
+    csv_data = output.getvalue()
     st.download_button(
-        label="点击下载Excel文件",
-        data=excel_data,
-        file_name="播种机机型表.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        label="点击下载CSV（Excel打开）",
+        data=csv_data,
+        file_name="播种机机型表.csv",
+        mime="text/csv"
     )
-    st.success("Excel文件已生成，请点按钮下载")
+    st.success("文件已生成，请点击按钮下载")
 
 # ========== 展示表格 ==========
 st.subheader("机型列表")
